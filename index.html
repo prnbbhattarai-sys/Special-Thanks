@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>A Journey of Memories with Muna 🌸</title>
+    <style>
+        /* ======================= GLOBAL STYLES ======================= */
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: linear-gradient(to bottom, #fefefe, #f0f0ff); color: #333; }
+        button { cursor: pointer; border-radius: 8px; padding: 8px 15px; margin: 5px; transition: 0.3s;touch-action: manipulation;-webkit-tap-highlight-color: transparent;user-select: none; }
+        button:hover { background: #fffaea; transform: scale(1.05); }
+
+        /* ======================= LOCK SCREEN ======================= */
+        #lockScreen { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(to right, #fefefe, #dcefff); text-align: center; }
+        #lockScreen input { padding: 10px; margin: 10px; width: 200px; border-radius: 5px; border: 1px solid #ccc; }
+        #lockScreen button { background: #8fd4ff; border: none; font-weight: bold; }
+        .hint { color: #777; font-size: 0.9rem; }
+
+        /* ======================= HERO SECTION ======================= */
+        section { max-width: 900px; margin: auto; padding: 50px 20px; border-radius: 15px; }
+        .hero { text-align: center; background: #ffe3f0; margin-top: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .hero h1 { font-size: 3rem; color: #ff69b4; }
+        .hero p { font-size: 1.2rem; color: #555; }
+
+        /* ======================= SECTIONS ======================= */
+        section.content { display: none; animation: fadeIn 0.8s; }
+        @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+
+        /* ======================= PHOTO TREASURE ======================= */
+        #photoTreasure { text-align: center; margin: 20px 0; }
+        #photoTreasure button { background: #ffb6c1; }
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 15px; margin-top: 20px; opacity:0; transform: scale(0.5); transition: 0.5s; }
+        .photo-grid.show { opacity:1; transform: scale(1); }
+        .photo-grid img { width: 100%; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .photo-grid img:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .hidden { display: none; }
+        .photo-item img { width: 100%; max-width: 600px; margin-top: 10px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: 0.3s; }
+        .photo-item img:hover { transform: scale(1.05); }
+        .photo-item button { background: #ffb6c1; border: none; font-weight: bold; padding: 10px 15px; margin: 5px 0; cursor: pointer; border-radius: 8px; }
+
+        /* ======================= POEMS ======================= */
+        .poem-card { background: #fff0f5; border-radius: 15px; padding: 25px; margin: 15px 0; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: 0.3s; transform-style: preserve-3d; }
+        .poem-card:hover { transform: scale(1.02); }
+        .poem-card.flipped { background: #ffe3f0; transform: rotateY(180deg) scale(1.05); }
+
+        /* ======================= GAMES ======================= */
+        .game { background: #e0f7fa; padding: 25px; margin: 20px 0; border-radius: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        .cards { display: grid; grid-template-columns: repeat(4, 70px); gap: 10px; justify-content: center; }
+        .card { height: 70px; background: #ddd; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .card:hover { transform: scale(1.1); background: #fff; }
+
+        /* ======================= SCORE & PROGRESS ======================= */
+        .score { text-align: center; font-size: 1.5rem; margin: 20px 0; }
+        .progress { margin: 20px 0; }
+        .bar { width: 100%; height: 18px; background: #ddd; border-radius: 10px; }
+        #fill { height: 100%; width: 0%; background: linear-gradient(to right, #ffb6c1,#ff69b4); border-radius: 10px; transition:0.5s; }
+
+        /* ======================= TIMELINE ======================= */
+        .timeline-card { background: #fff8dc; padding: 20px; border-radius: 15px; margin: 15px 0; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+
+        /* ======================= FINAL EASTER EGG ======================= */
+        #secret { display:none; background: #fff0f5; padding: 30px; text-align: center; border-radius: 15px; box-shadow: 0 3px 15px rgba(0,0,0,0.2); }
+
+        /* ======================= NAV BUTTONS ======================= */
+        .nav-buttons { text-align: center; margin-top: 20px; }
+        .nav-buttons button { background: #ffb6c1; position: relative; }
+
+        /* ======================= FOOTER ======================= */
+        footer { text-align:center; color:#777; margin:50px 0; }
+
+        /* ======================= CONTENT CARDS ======================= */
+        .story-card { background: #fffaf0; border-radius: 15px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .story-card h3 { margin-top: 0; color:#ff69b4; }
+        .story-card p { line-height: 1.6; }
+
+        /* ======================= RESPONSIVE ======================= */
+        @media(max-width: 500px){ .cards { grid-template-columns: repeat(2, 70px); } #chatContainer { width: 95%; } }
+        .chat-box { max-width: 400px; margin: auto; padding: 15px; border-radius: 12px; background: #f4f4f4; font-family: system-ui; }
+        .chat-area { height: 260px; overflow-y: auto; margin-bottom: 10px; }
+        .msg { padding: 8px 12px; border-radius: 15px; margin: 6px 0; max-width: 75%; }
+        .user { background: #007aff; color: white; margin-left: auto; }
+        .bot { background: #e5e5ea; color: black; }
+        .typing { font-size: 13px; color: gray; }
+
+        @media screen and (max-width: 768px) {
+            body { font-size: 16px; }
+            section { padding: 25px 15px; margin: 0 10px; }
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            button { width: 100%; padding: 12px; font-size: 1rem; }
+            .nav-buttons { display: flex; flex-direction: column; gap: 10px; }
+            .photo-item img { max-width: 100%; }
+            #chatContainer { width: 100% !important; margin: 20px auto; }
+            #chatBox { height: 180px; }
+            input[type="text"] { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="lockScreen">
+        <h1>🔐 Private Keepsake for memories</h1>
+        <p class="hint">Hint: your mobile password</p>
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button onclick="checkPassword()">Unlock</button>
+        <p id="errorMsg" style="color:red;"></p>
+    </div>
+
+    <div id="mainContent">
+        <section class="hero content" id="step0">
+            <h1>🌸 A Journey of Memories with Muna 🌸</h1>
+            <p>Welcome Muna! Every page is filled with our laughter, silly mistakes, poems, playful tricks, and moments only you and I share. 💖</p>
+            <p>Click below to start exploring… but watch out, some buttons might run away! 😄</p>
+            <div class="nav-buttons">
+                <button data-original="Start the Journey →" onclick="goNext(1)">Start the Journey →</button>
+            </div>
+        </section>
+
+        <section class="content" id="step1">
+            <h2>🎓 Where it all began, Muna</h2>
+            <div class="story-card">
+                <h3>First Meetings</h3>
+                <p>मुनु, हामीले ६ वर्षको यात्रा सँगै बितायौं, जहाँ हाँसो, रमाइलो, साहसिक अनुभव, स–साना तिनका झगडा र ठूलो साना सम्झनाहरूले हाम्रो जीवन रंगिन बनायो। कलेजको गल्लीमा पहिलो भेटदेखि लिएर, स–साना हाँसोका पल, अनौठा सेल्फीहरू, सँगै घुमेको रमाइलो घुमघाम, मस्ती, चिया–कफीका मजा, अनि हाम्रा गफहरूले हरेक दिन विशेष बनायो। हामीले धेरै कुरा सिक्यौं—साथ दिनु, एकअर्काको विचार बुझ्नु, माया र सम्मान गर्नु। हामी अलग भयौं, तर त्यो सम्बन्धको अन्त्यले कुनै दुख होइन, केवल हामी दुबैको लागि अनुभव र सम्झनाको धरोहर मात्र छोड्यो। मुनु, यी ६ वर्षको यात्राले हामीलाई हाँस्न, रमाउन, र जीवनको सानो–साना रमाइला पलहरू कदर गर्न सिकायो। म ती हरेक पग्लिएका खुसिका र मुस्कानका क्षणहरू कहिल्यै भुल्दिनँ। आज पनि जब म ती यादहरू सम्झन्छु, मन भरी हर्ष र कृतज्ञताले भरिन्छ, र म आशा गर्छु कि तिमी पनि ती सबै रमाइला पलहरूलाई हाँस्दै सम्झन्छौ। जीवन निरन्तर अगाडि बढिरहन्छ, र हाम्रो मित्रता र सम्झनाले सधैं उज्यालो रहिरहोस् भन्ने मेरो कामना छ। 🌟</p>
+            </div>
+            <div class="nav-buttons">
+                <button onclick="goNext(0)">← Back</button>
+                <button data-original="Next →" onclick="goNext(2)">Next →</button>
+            </div>
+        </section>
+
+        <section class="content" id="step2">
+            <h2>📦 Press here to explore memories, Muna 😄</h2>
+            <div id="photoTreasure">
+                <div class="photo-item">
+                    <button onclick="togglePhoto('photo1')">Muna's first smile caught on camera! 😄</button>
+                    <img id="photo1" src="photos/img1.jpeg" alt="Muna's first smile" class="hidden">
+                </div>
+                <div class="photo-item">
+                    <button onclick="togglePhoto('photo2')">Film day chasmebaddur </button>
+                    <img id="photo2" src="photos/img2.jpeg" alt="Film day chasmebaddur" class="hidden">
+                </div>
+                <div class="photo-item">
+                    <button onclick="togglePhoto('photo3')">Dramebaaz muna 🎒🌏</button>
+                    <img id="photo3" src="photos/img3.jpeg" alt="Dramebaaz muna" class="hidden">
+                </div>
+                <div class="photo-item">
+                    <button onclick="togglePhoto('photo4')">Random selfie fail Muna 😜</button>
+                    <img id="photo4" src="photos/img4.jpeg" alt="Selfie fail" class="hidden">
+                </div>
+                <div class="photo-item">
+                    <button onclick="togglePhoto('photo5')">Kaam dherai garera dhaleko Muna 📚💖</button>
+                    <img id="photo5" src="photos/img5.jpeg" alt="Behos muna" class="hidden">
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button onclick="goNext(1)">← Back</button>
+                <button data-original="Next →" onclick="goNext(3)">Next →</button>
+            </div>
+        </section>
+
+        <section class="content" id="step3">
+            <h2>✍️ Poems & Thoughts for Muna</h2>
+            <div class="poem-card" onclick="flipCard(this)">समयले अलग पार्‍यो, दोष कसैको थिएन। तर तिमी मेरो जीवनमा सधैं मुस्कान बनेर रह्यौ। 💕 Muna</div>
+            <div class="poem-card" onclick="flipCard(this)">Some meetings aren’t destinations; they are lessons. 🌸</div>
+            <div class="poem-card" onclick="flipCard(this)">
+                <p> Ma shayad kayar rahexu, ya ta shayad aile aaera bhaexu <br> hos shayad pailai gumaisakeko thiye maile <br> ya ta shayad aile behosi ma gaexu <br><br> shayad paagal nai thiye hola ma k soche kuni <br> ki ta soche hola yo nabhaye arko juni <br><br> tara k aaula ra muna testo kunai din? <br> jaha soche jhai hunxa jiwan rangin <br><br> tara hunna hola hai ma darpok bata testo <br> kasto paap lagera payau hola hai kta yesto <br><br> tara j hos muna dhoka diyo bhanaera na sarapnu <br> huna ta ma dhokebaz lai k, bas afno khayal chai rakhnu 🥞 </p>
+            </div>
+            <div class="nav-buttons">
+                <button onclick="goNext(2)">← Back</button>
+                <button data-original="Next →" onclick="goNext(4)">Next →</button>
+            </div>
+        </section>
+
+        <section class="content" id="step4">
+            <h2>🎮 Games for Muna</h2>
+            <div class="game">
+                <h2>🔮 Magic Horscope Ball(Muna's Edition) </h2>
+                <button onclick="revealMemory()">🔮 Ask the Magic Ball</button>
+                <p id="memoryDisplay"></p>
+            </div>
+            <div class="game">
+                <h3>❓ Quiz</h3>
+                <p>Muna, which matters more in life?</p>
+                <button onclick="quiz(true)">Respect</button>
+                <button onclick="quiz(false)">Ego</button>
+                <p id="quizResult"></p>
+            </div>
+            <div class="game">
+                <h3>🎯 Guess the Memory</h3>
+                <p>Muna, where did we study together?</p>
+                <button onclick="guessMemory(true)">College</button>
+                <button onclick="guessMemory(false)">Office</button>
+                <p id="guessResult"></p>
+            </div>
+            <div class="score">
+                <p>⭐ Engagement Score: <span id="scoreValue">0</span></p>
+            </div>
+            <div class="progress">
+                <div class="bar"><div id="fill"></div></div>
+            </div>
+            <div class="nav-buttons">
+                <button onclick="goNext(3)">← Back</button>
+                <button data-original="Next →" onclick="goNext(5)">Next →</button>
+            </div>
+        </section>
+
+        <section class="content" id="step5">
+            <h2>🕊️ Gratitude Timeline for Muna</h2>
+            <div class="timeline-card">College days – laughter, study, and dreams 🌟</div>
+            <div class="timeline-card">Support without conditions 💪💖</div>
+            <div class="timeline-card">Respect after separation 🌸</div>
+            <div class="timeline-card">Peace before moving on ✨🕊️</div>
+            <div class="timeline-card">Secret inside jokes and little pranks 😄</div>
+            <div class="nav-buttons">
+                <button onclick="goNext(4)">← Back</button>
+                <button data-original="Next →" onclick="goNext(6)">Next →</button>
+            </div>
+        </section>
+
+        <section class="content" id="step6">
+            <h2>🌟 For Muna's Bright Future</h2>
+            <div class="story-card">
+                <h3>Your Nursing Dream</h3>
+                <p>Muna, every dream you have is valid. Your kindness and patience will make you a remarkable nurse. 💖</p>
+            </div>
+            <div class="story-card">
+                <h3>Motivation for Life</h3>
+                <p>Patience is your superpower 🌱, challenges are stepping stones 🚀. Keep your heart strong, your spirit bright! ✨</p>
+            </div>
+            <div class="nav-buttons">
+                <button onclick="goNext(5)">← Back</button>
+                <button data-original="Next →" onclick="goNext(7)">Next →</button>
+            </div>
+        </section>
+
+    <section class="content" id="step7">
+            <h2>💌 A Final Thank You for Muna</h2>
+            
+            <div id="secret">
+                <h3>🌟 Easter Egg!</h3>
+                <p>Muna, some people are remembered quietly — and respectfully… Thank you for being wonderful, kind, and unforgettable. 💖</p>
+                <p>May happiness follow you in every step, and may your dreams bloom like flowers every day! 🌸✨</p>
+            </div>
+
+            <div id="genie-zone" style="text-align: center; margin: 30px 0; padding: 20px; background: #fdf2ff; border-radius: 20px; border: 2px solid #e0b0ff;">
+                <h3 id="genie-instruction" style="color: #9b59b6; font-size: 1.1rem;">✨ Is there something you want to tell the real Pranab?</h3>
+                <p style="font-size: 0.8rem; color: #888;">Tap the Genie & say "Pranab" 3 times...</p>
+                
+                <button id="genie-btn" onclick="rubLamp()" style="font-size: 3rem; background: none; border: none; transition: 0.3s; filter: drop-shadow(0 0 10px #d487ff);">🧞‍♂️</button>
+                <p id="genie-count" style="font-weight: bold; color: #ff69b4; margin-top: 10px;"></p>
+            </div>
+
+            <div id="real-mailbox" style="display: none; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: rgba(255, 240, 245, 0.9); border: 2px dashed #ffb6c1; margin: 20px 0; padding: 15px; border-radius: 15px;">
+                <h3 style="color: #ff69b4; font-size: 1.1rem;">📬 Magic Mailbox Unlocked!</h3>
+                <form id="contact-form" action="https://formspree.io/f/xjgewbon" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 8px;">
+                    <input type="text" name="subject" placeholder="Subject..." required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                    <textarea name="message" placeholder="This goes straight to Pranab's email..." rows="3" required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;"></textarea>
+                    <input type="file" name="upload" accept="image/*" style="font-size: 0.8rem;">
+                    <button type="submit" id="form-submit-btn" style="background: #ff69b4; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold;">Cast the Spell (Send) 🚀</button>
+                    <p id="form-status" style="display:none; color: #ff69b4; font-weight: bold; margin-top: 10px; text-align: center;">✨ Your message traveled through the stars to Pranab! ✅</p>
+                </form>
+            </div>
+
+            <style>
+                @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+                .shake { animation: shake 0.3s; }
+                @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+            </style>
+
+            <div class="nav-buttons">
+                <button onclick="goNext(6)">← Back</button>
+            </div>
+
+            <div class="chat-box">
+                <h3>💬 If you ever miss me, text me here</h3>
+                <div id="chatArea" class="chat-area"></div>
+                <div id="typing" class="typing" style="display:none;"> Pranab is typing<span class="dots">...</span> </div>
+                <input type="text" id="userMsg" placeholder="Type here..." />
+                <button onclick="sendMsg()">Send</button>
+            </div>
+        </section>
+
+        <footer>
+            <p>Private • Unshared • Complete • Made with ❤️ for Muna</p>
+        </footer>
+    </div>
+
+    <script>
+        /* ======================= AI CHAT ======================= */
+        const replies = [
+            "Hey Muna! 😄 How’s your day going?", "I was just thinking about you ❤️", "Miss you , hope you’re smiling!",
+            "Khana khayau? 🍕🥰", "Remember our first bhet ? 🥞😅", "You always make me laugh 😄",
+            "You make every moment special💖", "Just wanted to say you can do it ", "How’s my favorite person doing? 😍",
+            "I hope you slept well 😴✨", "Remember our first coffee together? ☕🥰", "You’re my sunshine even on rainy days ☀️🌧️",
+            "You always brighten my day 🌟", "Thinking of that time we got lost but laughed it off 😂",
+            "You’re amazing, never forget that 💕", "How’s my superstar nurse doing? 🌸💪", "Every moment with you is unforgettable ❤️",
+            "I miss your laughter 😭", "You make life so fun 😄", "You’re in my thoughts all the time 💭❤️",
+            "Sending you virtual hugs 🤗💖", "Remember our random selfie fails? 😜", "You inspire me every day ✨",
+            "You’re always in my heart 💓", "Hope you’re smiling right now 😘", "Can’t wait for our next adventure 🌏",
+            "You’re my favorite memory maker 💕", "Thinking of your sweet voice 🎶", "You make every day brighter 🌟",
+            "I love how kind you are 💖", "Ma ta hamesha timro sath xu ❤️", "Timi bina life adhoora jasto cha 😢",
+            "K gharma sab thik cha? 😊", "Timro muskan herera din ramailo lagcha 🌸", "Timlai miss gariraxa 😭",
+            "Hami sath bhaye ramailo huney cha 😄", "Timro voice ko yaad aayo 🎶", "Timi ta mero sunshine jasto chau ☀️",
+            "Sadhai smile gardai basnu 😍", "k xa hau runchi khabar 💕", "Yo memory ta yaad cha, funny thiyo 😆",
+            "Timi ta ramro manis chau 🌸", "Timro din ramailo hoos bhanera aashaa garxu 💖", "Timro muskan herera ma khushi chu 😄",
+            "Sathma bhaye ta sab ramailo huney cha 🌟", "Timi mero yaad ma sadhai chau 💓", "oe k ho jhagada ko yaad aayo k ho 😢",
+            "hasdeu na ta bro ekchoti 😍", "oe feri samjhe k ho maile 🤗", "Timro din sukhad hoos bhanera pray garxu ✨",
+            "haseo haseo muna haseo ani k xa ta halli challi 😄"
+        ];
+
+        function sendMsg(){
+            const input = document.getElementById("userMsg");
+            if(!input.value) return;
+            addMsg(input.value, "user");
+            input.value = "";
+            const typing = document.getElementById("typing");
+            typing.style.display = "block";
+            setTimeout(()=>{
+                typing.style.display = "none";
+                const reply = replies[Math.floor(Math.random()*replies.length)];
+                addMsg("Pranab: " + reply, "bot");
+            }, 1500);
+        }
+
+        function addMsg(text, cls){
+            const div = document.createElement("div");
+            div.className = "msg " + cls;
+            div.innerText = text;
+            const chatArea = document.getElementById("chatArea");
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+/* ======================= FORM HANDLING (NO REDIRECT) ======================= */
+        const form = document.getElementById("contact-form");
+        
+        async function handleSubmit(event) {
+          event.preventDefault(); // This stops the redirect!
+          const status = document.getElementById("form-status");
+          const btn = document.getElementById("form-submit-btn");
+          const data = new FormData(event.target);
+          
+          btn.disabled = true;
+          btn.innerText = "Sending...";
+
+          fetch(event.target.action, {
+            method: form.method,
+            body: data,
+            headers: { 'Accept': 'application/json' }
+          }).then(response => {
+            if (response.ok) {
+              status.style.display = "block"; // Show the success message
+              form.reset(); // Clear the form
+              btn.style.display = "none"; // Hide the button
+            } else {
+              status.innerText = "Oops! Something went wrong.";
+              status.style.display = "block";
+              btn.disabled = false;
+              btn.innerText = "Try Again";
+            }
+          }).catch(error => {
+            status.innerText = "Oops! Network error.";
+            status.style.display = "block";
+            btn.disabled = false;
+          });
+        }
+        form.addEventListener("submit", handleSubmit);
+/* ======================= THE GENIE MAGIC ======================= */
+        let rubCount = 0;
+        function rubLamp() {
+            rubCount++;
+            const btn = document.getElementById("genie-btn");
+            const countText = document.getElementById("genie-count");
+            
+            // Add shake effect
+            btn.classList.add("shake");
+            setTimeout(() => btn.classList.remove("shake"), 300);
+
+            if (rubCount === 1) {
+                countText.innerText = "Pranab...";
+                btn.style.filter = "drop-shadow(0 0 20px #d487ff) hue-rotate(45deg)";
+            } else if (rubCount === 2) {
+                countText.innerText = "Pranab... Pranab...";
+                btn.style.filter = "drop-shadow(0 0 30px #d487ff) hue-rotate(90deg)";
+            } else if (rubCount === 3) {
+                countText.innerText = "PRANAB!";
+                // Puff away effect
+                btn.style.transform = "scale(2)";
+                btn.style.opacity = "0";
+                
+                setTimeout(() => {
+                    document.getElementById("genie-zone").style.display = "none";
+                    document.getElementById("real-mailbox").style.display = "block";
+                    // Scroll to the form so she sees it
+                    document.getElementById("real-mailbox").scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+            }
+        }
+        /* ======================= LOCK SCREEN ======================= */
+        function checkPassword(){
+            const pass = document.getElementById("passwordInput").value;
+            if(pass === "515841"){
+                document.getElementById("lockScreen").style.display="none";
+                goNext(0);
+            } else {
+                document.getElementById("errorMsg").innerText = "Incorrect! Try again.";
+            }
+        }
+
+        /* ======================= STEP NAVIGATION ======================= */
+        function goNext(step){
+            document.querySelectorAll(".content").forEach(s=>s.style.display="none");
+            document.getElementById("step"+step).style.display="block";
+        }
+
+        /* ======================= PHOTO FUNCTIONS ======================= */
+        function togglePhoto(id){
+            const img = document.getElementById(id);
+            img.classList.toggle("hidden");
+        }
+
+        /* ======================= POEM FLIP ======================= */
+        function flipCard(el){ el.classList.toggle("flipped"); }
+
+        /* ======================= MAGIC BALL / QUIZ ======================= */
+        let score = 0;
+        function revealMemory(){
+            const messages = [
+                "मुनाले आज हाँस्दा आसमान पनि झिलिमिली हुनेछ 🌟😄. Beware of socks hiding under the bed 🧦✨.",
+                "Your coffee will be stronger than your Wi-Fi today ☕📶. Don’t trust any momo that looks too perfect 🥟😂.",
+                "आज तिमीले random dance गर्न मन लाग्नेछ 💃😆. Remember, invisible monkeys approve 🐒💖.",
+                "Magic Ball predicts you’ll find joy in small things, like perfectly folded laundry 🧺😄. Beware of talking bhatmas 🥜✨.",
+                "Today, Muna, you might accidentally text the wrong person 😂📱. Don’t worry, magical emojis will save the day ✨😄.",
+                "तिमी आज library मा हाँस्दा सबैलाई distract गर्नेछौ 📚😄. Extra chiya is mandatory ☕💖.",
+                "Your momo flipping skills may cause minor chaos 🥟😆. Beware of sudden giggle attacks 😂.",
+                "आजको दिन तिमीको smile ले world जित्नेछ 😄🌸. Random hugs from invisible fairies incoming 🧚‍♀️✨.",
+                "Magic Ball sees a sudden craving for ice cream 🍦😋. Nepali sel roti cravings might also hit 🥯😄.",
+                "Today, Muna, your laughter might be contagious 😄💖. Beware of monkeys stealing your snacks 🐒🍪.",
+                "तिमी आज मस्ती गर्न मन लाग्नेछ 💃🌟. Random compliments incoming from nowhere 😆💖.",
+                "Magic Ball predicts: someone will compliment your aura today ✨🌸. Beware of glitter explosions 🧴😂.",
+                "Today is perfect for silly selfies 🤳😄. Nepali chiya will taste extra magical ☕💖.",
+                "मुनाले आज अचानक रमाइलो गर्नेछ 🌟😄. Beware of sudden urge to dance in public 💃😂.",
+                "Magic Ball says: chocolate makes everything better 🍫😋. Bhuteko achar might cause magical sneezes 🥬😆.",
+                "Your aura shines brighter than the stars ✨🌌. Random giggles might happen at serious moments 😂😄.",
+                "आज तिमीले unexpected hug पाउनेछौ 🤗💖. Beware of talking trees 🌳😆.",
+                "Magic Ball predicts: today is perfect for whispering jokes to your pillow 😄🛏️. Nepali street food cravings incoming 🥟😋.",
+                "Today, Muna, your laughter might be contagious 😄💖. Beware of stray cows blocking the road 🐄😂.",
+                "तिमी आज phone मा random emojis प्रयोग गर्नेछौ 📱😆. Chiya will be your secret weapon ☕✨.",
+                "Magic Ball says: flipping momo might lead to magic sparks 🥟✨. Random compliments incoming 💖😄.",
+                "Your smile might light up the room today 😄🌟. Beware of sock avalanches 🧦😂.",
+                "आजको दिन तिमीले गफ गर्दा सबै हाँस्नेछौ 😄🌸. Nepali folk songs will make you dance 💃🎶.",
+                "Magic Ball predicts: invisible fairies might bring you small gifts 🧚‍♀️✨. Extra sel roti is advised 🥯😋.",
+                "Today is perfect for random selfies 🤳😄. Momo may start plotting 😂.",
+                "तिमी आज library मा अचानक giggle attack हुनेछ 📚😆. Beware of invisible monkeys 🐒✨.",
+                "Magic Ball says: hugs from pillows count as real hugs 🤗🛏️. Nepali chiya will taste extra sweet ☕💖.",
+                "Today, Muna, you might trip over your own feet 😂💃. Smile anyway—it looks magical 😄✨.",
+                "आज तिमीले unexpected compliment पाउनेछौ 💖😄. Random chocolate cravings incoming 🍫😋.",
+                "Magic Ball predicts: dancing in your room will bring cosmic blessings 💃🌌. Beware of tikha achar explosions 🌶️😂.",
+                "Your laughter might cause nearby humans to laugh uncontrollably 😄🌸. Invisible unicorns approve 🦄✨.",
+                "आजको दिन Nepali momo cravings बढ़्नेछ 🥟😋. Chiya will save the day ☕😄.",
+                "Magic Ball says: random giggles are signs of happiness 😆✨. Hug a pillow for extra luck 🤗🛏️.",
+                "Today is perfect for misplacing keys and laughing about it 🔑😂. Flying kites may cross your path 🪁😆.",
+                "तिमी आज random compliments दिने मन लाग्नेछ 💖😄. Beware of sudden dance urges 💃✨.",
+                "Magic Ball predicts: someone will send you an emoji that feels magical 😄📱. Nepali street food cravings incoming 🥟😋.",
+                "Your aura is shining like neon lights ✨😆. Random chiya gifts may appear ☕💖.",
+                "आज तिमीले phone मा emoji flood गर्नेछौ 😂📱. Invisible fairies are cheering for you 🧚‍♀️✨.",
+                "Magic Ball says: giggle at small things today 😄. Flying kites might steal your hat 🎩😂.",
+                "Today, Muna, your smile is unstoppable 😄🌸. Nepali sel roti will taste like magic 🥯💖.",
+                "तिमी आज library मा अचानक dance attack हुनेछ 📚💃. Beware of invisible cat sabotage 🐱😂.",
+                "Magic Ball predicts: hugs from pillows count as real hugs 🤗🛏️. Chiya makes it even better ☕😋.",
+                "Your momo flipping skills might cause chaos 🥟😂. Random giggles are guaranteed 😄.",
+                "आजको दिन तिमीले unexpected dance गर्न मन लाग्नेछ 💃😆. Nepali street food cravings incoming 🥟😋.",
+                "Magic Ball says: chiya + chocolate = cosmic joy ☕🍫✨. Beware of sock avalanches 🧦😂.",
+                "Today, Muna, someone will compliment your aura 😄💖. Invisible monkeys approve 🐒✨.",
+                "तिमी आज random selfies लिने मन लाग्नेछ 🤳😆. Bhuteko achar might try to escape 🥬😂.",
+                "Magic Ball predicts: laughter is contagious 😄✨. Nepali chiya will taste extra sweet ☕💖.",
+                "Your smile might light up the room today 😄🌟. Beware of sneaky socks 🧦😂.",
+                "आजको दिन तिमीले unexpected hug पाउनेछौ 🤗💖. Random chocolate cravings incoming 🍫😋.",
+                "Magic Ball says: dancing in your room will bring cosmic blessings 💃🌌. Magic monkeys might revolt 🐒😂.",
+                "Today is perfect for random giggles 😄. Nepali momo cravings will be strong 🥟😋.",
+                "तिमी आज phone मा emoji flood गर्नेछौ 📱😂. Bhuteko achar might conspire 🥬😆.",
+                "Magic Ball predicts: dancing in your room brings cosmic blessings 💃🌌. Beware of sock avalanches 🧦😂.",
+                "Your aura shines like neon lights ✨😆. Nepali momo cravings will be irresistible 🥟😋."
+            ];
+            document.getElementById("memoryDisplay").innerText = messages[Math.floor(Math.random()*messages.length)];
+            updateScore(5);
+        }
+
+        function quiz(correct){
+            document.getElementById("quizResult").innerText = correct ? "Correct! Respect always ❤️" : "Oops! Not this time 😅";
+            updateScore(correct?10:0);
+        }
+
+        function guessMemory(correct){
+            document.getElementById("guessResult").innerText = correct ? "Yes! College memories 🌸" : "Nope, not this one 😄";
+            updateScore(correct?10:0);
+        }
+
+        function updateScore(points){
+            score += points;
+            if(score > 100) score=100;
+            document.getElementById("scoreValue").innerText = score;
+            document.getElementById("fill").style.width = score+"%";
+            if(score >= 60) document.getElementById("secret").style.display="block";
+        }
+/* ======================= MOBILE-FRIENDLY RUNAWAY BUTTONS ======================= */
+document.querySelectorAll(".nav-buttons button").forEach(btn => {
+    const original = btn.dataset.original || btn.innerText;
+    btn.dataset.original = original;
+
+    // We only want the "Next" buttons to run away, not the "Back" buttons
+    if (!original.includes("Back")) {
+        // For Laptop/Desktop (Mouse)
+        btn.addEventListener("mouseenter", () => {
+            const x = Math.random() * 40 - 20;
+            const y = Math.random() * 40 - 20;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+        });
+
+        // For Mobile (Finger Touch)
+        btn.addEventListener("touchstart", (e) => {
+            // This makes the button jump as soon as she tries to tap it
+            const x = Math.random() * 60 - 30;
+            const y = Math.random() * 60 - 30;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+            
+            // Optional: reset after a short delay so she can eventually click it
+            setTimeout(() => {
+                btn.style.transform = "translate(0,0)";
+            }, 1000);
+        });
+
+        btn.addEventListener("mouseleave", () => {
+            btn.style.transform = "translate(0,0)";
+        });
+    }
+});
+        
+    </script>
+</body>
+</html>
